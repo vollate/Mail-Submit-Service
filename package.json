@@ -1,0 +1,28 @@
+{
+  "name": "mail_redirect",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "debug": "tsc&&cp config.json dist/config.json&&node dist/main.js",
+    "build": "tsc",
+    "start": "node dist/main.js",
+    "clean": "rm -rf dist/"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/imap": "^0.8.40",
+    "imap": "^0.8.19",
+    "nodemailer": "^6.9.15"
+  },
+  "devDependencies": {
+    "@types/mailparser": "^3.4.4",
+    "@types/mailparser-mit": "^1.0.4",
+    "@types/nodemailer": "^6.4.16",
+    "mailparser-mit": "^1.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2"
+  }
+}
