@@ -1,0 +1,32 @@
+{
+  "imap": {
+    "user": "xxxx@example.com",
+    "password": "xxxx",
+    "host": "imap.example.com",
+    "port": 993,
+    "tls": true
+  },
+  "smtp": {
+    "host": "smtp.example.com",
+    "port": 465,
+    "secure": true,
+    "auth": {
+      "user": "xxxx@example.com",
+      "pass": "passwd"
+    }
+  },
+  "fwd": {
+    "forward_to": [
+      "1@example.com",
+      "2@example.com"
+    ],
+    "mode": "SINCE",
+    "date": "2024-09-20",
+    "next_term": 0,
+    "forward_subject_temp": "Fwd From: {OriginalSender}, Subject: {OriginalSubject}",
+    "subject_regex": "^Just Test$"
+  },
+  "statistics": {
+    "log_path": "statistic.json"
+  }
+}

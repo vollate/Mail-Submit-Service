@@ -22,6 +22,7 @@
     "@types/mailparser-mit": "^1.0.4",
     "@types/nodemailer": "^6.4.16",
     "mailparser-mit": "^1.0.0",
+    "prettier": "3.3.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2"
   }

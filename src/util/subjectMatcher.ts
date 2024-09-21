@@ -1,4 +1,4 @@
-export function isSubjectMatch(subjectRegex: RegExp, subject: string | undefined) {
-    return subjectRegex.test(subject || '');
+export function isSubjectMatch(subjectRegex: RegExp, subject: string | undefined): boolean {
+  return subjectRegex.test(subject || '');
 }
 
