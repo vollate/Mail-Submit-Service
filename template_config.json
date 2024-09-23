@@ -22,7 +22,6 @@
     ],
     "mode": "SINCE",
     "date": "2024-09-20",
-    "next_term": 0,
     "forward_subject_temp": "Fwd From: {OriginalSender}, Subject: {OriginalSubject}",
     "subject_regex": "^Just Test$"
   },

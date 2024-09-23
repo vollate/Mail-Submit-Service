@@ -10,20 +10,30 @@ export class MailProcessor {
   private readonly fwdConfig: any;
   private readonly subjectRegex: RegExp;
   private statisticsLog: StatisticsLog;
+  private persistenceConfig: any;
+  private successfulSendCallBack: () => void = () => {
+  };
 
-  constructor(imapConfig: any, smtpConfig: any, fwdConfig: any, statisticsConfig: any) {
+  constructor(imapConfig: any, smtpConfig: any, fwdConfig: any, statisticsConfig: any, persistenceConfig: any) {
     this.imap = new Imap(imapConfig);
     this.smtpConfig = smtpConfig;
     this.fwdConfig = fwdConfig;
     this.statisticsLog = new StatisticsLog(statisticsConfig);
+    this.persistenceConfig = persistenceConfig || {};
     this.subjectRegex = new RegExp(fwdConfig.subject_regex);
 
     if (this.fwdConfig.forward_to === undefined || this.fwdConfig.forward_to.length === 0) {
       throw new Error('No forward email address found');
     }
 
-    if (this.fwdConfig.next_term === undefined) {
-      this.fwdConfig.next_term = 0;
+    if (this.persistenceConfig.next_term === undefined) {
+      this.persistenceConfig.next_term = 0;
+    }
+    if (persistenceConfig.last_mail_timestamp === undefined) {
+      // By default, use 7 days ago as the latest mail time
+      this.persistenceConfig.last_mail_timestamp = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    } else {
+      this.persistenceConfig.last_mail_timestamp = persistenceConfig.last_mail_timestamp;
     }
   }
 
@@ -32,6 +42,14 @@ export class MailProcessor {
     this.imap.once('error', this.onError.bind(this));
     this.imap.once('end', this.onEnd.bind(this));
     this.imap.connect();
+  }
+
+  public getLatestMailInfo(): any {
+    return this.persistenceConfig;
+  }
+
+  public setSucceedCallBack(func: () => void) {
+    this.successfulSendCallBack = func;
   }
 
   private onReady() {
@@ -54,6 +72,12 @@ export class MailProcessor {
           console.error('[Invalid mode]');
       }
     });
+  }
+
+  private closeSendConnection(succeed: boolean) {
+    if (succeed) {
+      this.successfulSendCallBack();
+    }
   }
 
   private openInbox(cb: (err: Error | null) => void) {
@@ -124,12 +148,18 @@ export class MailProcessor {
     mailParser.on('end', (parsedMail) => {
       const {subject} = parsedMail as any;
 
-      if (isSubjectMatch(this.subjectRegex, subject)) {
-        console.log(`[Title matched] ${subject}`);
-        this.forwardEmail(parsedMail);
-      } else {
+      if (!isSubjectMatch(this.subjectRegex, subject)) {
         // console.log(`[Title mismatch] ${subject}`);
+        return;
       }
+      if (new Date(parsedMail.date as Date).getTime() <= new Date(this.persistenceConfig.last_mail_timestamp).getTime()) {
+        console.log(`[Mail is older than requirement] ${subject}`);
+        return;
+      } else {
+        this.persistenceConfig.last_mail_timestamp = parsedMail.date as Date;
+      }
+      console.log(`[Title matched] ${subject}`);
+      this.forwardEmail(parsedMail);
     });
 
     mailParser.on('error', (err) => console.error('[Parse mail fault]', err));
@@ -145,7 +175,7 @@ export class MailProcessor {
     let subject = title.replace('{OriginalSubject}', mail.subject || '');
     subject = subject.replace('{OriginalSender}', mail.from[0].address || '');
 
-    const htmlContent = mail.html || mail.textAsHtml || 'No content';
+    const htmlContent = mail.html || mail.text || 'No content';
     const forwardTarget = this.getNextFwdTarget();
     const forwardOptions: nodemailer.SendMailOptions = {
       from: this.smtpConfig.auth.user,
@@ -161,15 +191,17 @@ export class MailProcessor {
 
     transporter.sendMail(forwardOptions, (error, info) => {
       if (error) {
+        this.closeSendConnection(false);
         return console.error('<Forward error>', error);
       }
+      this.closeSendConnection(true);
       console.log(`[Forward succeed] Mail ID: ${info.messageId}, Target: ${forwardTarget}`);
     });
   }
 
   private getNextFwdTarget() {
-    const index: number = this.fwdConfig.next_term % this.fwdConfig.forward_to.length;
-    this.fwdConfig.next_term = index + 1;
+    const index: number = this.persistenceConfig.next_term % this.fwdConfig.forward_to.length;
+    this.persistenceConfig.next_term = index + 1;
     return this.fwdConfig.forward_to[index];
   }
 
@@ -181,4 +213,3 @@ export class MailProcessor {
     console.log('[Connection closed]');
   }
 }
-

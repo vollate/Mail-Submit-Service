@@ -15,7 +15,7 @@ export class StatisticsLog {
     this.log_content = loadConfig(log_path);
   }
 
-  public export(target_path: string) {
+  public export() {
 
   }
 }
