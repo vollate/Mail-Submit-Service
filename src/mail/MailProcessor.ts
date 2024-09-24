@@ -176,10 +176,10 @@ export class MailProcessor {
     subject = subject.replace('{OriginalSender}', mail.from[0].address || '');
 
     const htmlContent = mail.html || mail.text || 'No content';
-    const forwardTarget = this.getNextFwdTarget();
+    const receiver = this.getNextFwdReceiver();
     const forwardOptions: nodemailer.SendMailOptions = {
       from: this.smtpConfig.auth.user,
-      to: forwardTarget,
+      to: receiver,
       subject: subject,
       html: htmlContent,
       attachments: (mail.attachments || []).map((attachment: any) => ({
@@ -195,11 +195,12 @@ export class MailProcessor {
         return console.error('<Forward error>', error);
       }
       this.closeSendConnection(true);
-      console.log(`[Forward succeed] Mail ID: ${info.messageId}, Target: ${forwardTarget}`);
+      this.statisticsLog.addForwardRecord(receiver, mail);
+      console.log(`[Forward succeed] Mail ID: ${info.messageId}, Target: ${receiver}`);
     });
   }
 
-  private getNextFwdTarget() {
+  private getNextFwdReceiver() {
     const index: number = this.persistenceConfig.next_term % this.fwdConfig.forward_to.length;
     this.persistenceConfig.next_term = index + 1;
     return this.fwdConfig.forward_to[index];

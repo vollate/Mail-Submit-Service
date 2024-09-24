@@ -4,6 +4,10 @@ export function loadConfig(configPath: string): any {
   return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 }
 
+export function writeLog(configPath: string, config: any) {
+  return fs.writeFileSync(configPath, JSON.stringify(config), 'utf-8');
+}
+
 export function writeLatestMailInfo(configPath: string, originalConfig: any, persistenceConfig: any): void {
   const newConfig = {...originalConfig};
   newConfig.auto_generate_do_not_modify = persistenceConfig;
