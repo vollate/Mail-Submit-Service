@@ -1,15 +1,15 @@
 import Imap from 'imap';
 import {MailParser} from 'mailparser-mit';
 import nodemailer from 'nodemailer';
-import {isSubjectMatch} from '../util/subjectMatcher';
-import {StatisticsLog} from '../log/StatisticsLog';
+import {isSubjectMatch} from '../util/subjectMatcher.js';
+import {Statistics} from '../logger/Statistics.js';
 
 export class MailProcessor {
   private imap: Imap;
   private readonly smtpConfig: any;
   private readonly fwdConfig: any;
   private readonly subjectRegex: RegExp;
-  private statisticsLog: StatisticsLog;
+  private statisticsLog: Statistics;
   private persistenceConfig: any;
   private successfulSendCallBack: () => void = () => {
   };
@@ -18,7 +18,7 @@ export class MailProcessor {
     this.imap = new Imap(imapConfig);
     this.smtpConfig = smtpConfig;
     this.fwdConfig = fwdConfig;
-    this.statisticsLog = new StatisticsLog(statisticsConfig);
+    this.statisticsLog = new Statistics(statisticsConfig);
     this.persistenceConfig = persistenceConfig || {};
     this.subjectRegex = new RegExp(fwdConfig.subject_regex);
 
@@ -153,7 +153,7 @@ export class MailProcessor {
         return;
       }
       if (new Date(parsedMail.date as Date).getTime() <= new Date(this.persistenceConfig.last_mail_timestamp).getTime()) {
-        console.log(`[Mail is older than requirement] ${subject}`);
+        console.log(`[Mail is old] ${subject}`);
         return;
       } else {
         this.persistenceConfig.last_mail_timestamp = parsedMail.date as Date;

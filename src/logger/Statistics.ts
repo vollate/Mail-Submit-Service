@@ -1,8 +1,7 @@
 import fs from 'fs';
-import {loadConfig, writeLog} from '../util/configManager';
+import {loadConfig, writeLog} from '../util/configManager.js';
 
-export class StatisticsLog {
-  private dirty: boolean = false;
+export class Statistics {
   private log_content: any;
   private readonly config: any;
 
