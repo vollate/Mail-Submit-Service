@@ -25,6 +25,10 @@
     "forward_subject_temp": "Fwd From: {OriginalSender}, Subject: {OriginalSubject}",
     "subject_regex": "^Just Test$"
   },
+  "daemon": {
+    "enable": true,
+    "interval": 1800000
+  },
   "statistics": {
     "log_path": "statistic.json"
   }

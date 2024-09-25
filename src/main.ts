@@ -38,7 +38,8 @@ async function main(configPath: string) {
     if (!config.daemon.enable) {
       break;
     }
-    await new Promise(resolve => setTimeout(resolve, config.daemon.interval));
+    await new Promise(resolve => setTimeout(resolve, config.daemon.interval || 5 * 60 * 1000));
+    console.log(`-------------------${new Date().toLocaleString()} below-------------------`);
   }
 }
 
