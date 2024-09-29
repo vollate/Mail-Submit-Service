@@ -153,7 +153,7 @@ export class MailProcessor {
         return;
       }
       if (new Date(parsedMail.date as Date).getTime() <= new Date(this.persistenceConfig.last_mail_timestamp).getTime()) {
-        console.log(`[Mail is old] ${subject}`);
+        console.log(`===\n[Mail is old] ${subject}\n[Send date] ${parsedMail.date as Date}\n[Sender] ${parsedMail.from?.[0]?.address || 'Unknown'}\n===`);
         return;
       } else {
         this.persistenceConfig.last_mail_timestamp = parsedMail.date as Date;
