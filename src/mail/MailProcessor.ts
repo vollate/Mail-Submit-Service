@@ -30,8 +30,10 @@ export class MailProcessor {
       this.persistenceConfig.next_term = 0;
     }
     if (persistenceConfig.last_mail_timestamp === undefined) {
-      // By default, use 7 days ago as the latest mail time
-      this.persistenceConfig.last_mail_timestamp = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      if (this.fwdConfig.mode !== 'SINCE') {
+        throw new Error('No last mail timestamp found');
+      }
+      this.persistenceConfig.last_mail_timestamp = new Date(this.fwdConfig.date);
     } else {
       this.persistenceConfig.last_mail_timestamp = persistenceConfig.last_mail_timestamp;
     }
@@ -149,13 +151,13 @@ export class MailProcessor {
       const {subject} = parsedMail as any;
 
       if (!isSubjectMatch(this.subjectRegex, subject)) {
-        // console.log(`[Title mismatch] ${subject}`);
         return;
       }
       if (new Date(parsedMail.date as Date).getTime() <= new Date(this.persistenceConfig.last_mail_timestamp).getTime()) {
-        console.log(`===\n[Mail is old] ${subject}\n[Send date] ${parsedMail.date as Date}\n[Sender] ${parsedMail.from?.[0]?.address || 'Unknown'}\n===`);
+        console.log(`===\n[Mail is old] ${subject}\n[Send date] ${parsedMail.date as Date}\n[Lastest date] ${this.persistenceConfig.last_mail_timestamp}\n[Sender] ${parsedMail.from?.[0]?.address || 'Unknown'}`);
         return;
       } else {
+        console.log(`===\n[Send date] ${parsedMail.date as Date}`);
         this.persistenceConfig.last_mail_timestamp = parsedMail.date as Date;
       }
       console.log(`[Title matched] ${subject}`);
