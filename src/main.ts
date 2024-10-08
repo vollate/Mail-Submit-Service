@@ -24,8 +24,8 @@ async function main(configPath: string) {
         }
 
         case 3: {
-          argProcess(config);
-          break;
+          await argProcess(config);
+          return;
         }
 
         default:
@@ -43,11 +43,11 @@ async function main(configPath: string) {
   }
 }
 
-function argProcess(config: any) {
+async function argProcess(config: any) {
   switch (process.argv[2]) {
     case "export": {
-      const statisticsLog = new Statistics(config.statistics_log);
-      statisticsLog.export();
+      const statisticsLog = new Statistics(config.statistics);
+      await statisticsLog.export();
       break;
     }
 

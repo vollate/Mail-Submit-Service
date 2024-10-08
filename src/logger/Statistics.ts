@@ -1,5 +1,6 @@
 import fs from 'fs';
 import {loadConfig, writeLog} from '../util/configManager.js';
+import ExcelJS from 'exceljs';
 
 export class Statistics {
   private log_content: any;
@@ -18,12 +19,46 @@ export class Statistics {
     if (undefined === this.log_content[fwdReceiver]) {
       this.log_content[fwdReceiver] = [];
     }
+    const filenames: Array<string> = [];
+    originalMail.attachments.forEach((attachment: any) => {
+      filenames.push(attachment.fileName);
+    });
     delete originalMail.attachments;
+    originalMail.attachments = filenames;
     this.log_content[fwdReceiver].push(originalMail);
     writeLog(this.config.log_path, this.log_content);
   }
 
-  public export() {
-    throw Error('not implement');
+  public async export() {
+    const sheet1 = 'Sheet 1';
+    const workbook = this.createWorksheet(sheet1);
+    const worksheet = workbook.getWorksheet(sheet1) || workbook.addWorksheet(sheet1);
+    for (const receiver in this.log_content) {
+      for (const mail of this.log_content[receiver]) {
+        worksheet.addRow({
+          sub: mail.attachments[0],
+          ass: receiver,
+          sub_mail: mail.from[0].address,
+          ass_mail: receiver
+        });
+      }
+    }
+    return this.writeWorksheet(workbook, this.config.statistics);
+  }
+
+  private createWorksheet(name: string): ExcelJS.Workbook {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(name);
+    worksheet.columns = [
+      {header: 'Submitter', key: 'sub', width: 40},
+      {header: 'Assignee', key: 'ass', width: 40},
+      {header: 'Submitter Mail', key: 'sub_mail', width: 40},
+      {header: 'Assignee Mail', key: 'ass_mail', width: 40},
+    ];
+    return workbook;
+  }
+
+  private async writeWorksheet(workbook: ExcelJS.Workbook, savePath: string) {
+    return workbook.xlsx.writeFile('statistic.xlsx');
   }
 }

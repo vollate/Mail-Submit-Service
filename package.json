@@ -9,17 +9,18 @@
     "start": "tsc&&node dist/main.js",
     "clean": "rm -rf dist/"
   },
-  "type":"module",
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/imap": "^0.8.40",
+    "exceljs": "^4.4.0",
     "imap": "^0.8.19",
     "nodemailer": "^6.9.15"
   },
   "devDependencies": {
-    "@types/mailparser": "^3.4.4",
+    "@types/mailparser": "^3.4.5",
     "@types/mailparser-mit": "^1.0.4",
     "@types/nodemailer": "^6.4.16",
     "mailparser-mit": "^1.0.0",
