@@ -36,7 +36,7 @@ export class Statistics {
     for (const receiver in this.log_content) {
       for (const mail of this.log_content[receiver]) {
         worksheet.addRow({
-          sub: mail.attachments[0],
+          sub: mail.attachments !== undefined ? mail.attachments[0] : mail.from[0].name,
           ass: receiver,
           sub_mail: mail.from[0].address,
           ass_mail: receiver
