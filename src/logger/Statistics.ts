@@ -20,9 +20,14 @@ export class Statistics {
       this.log_content[fwdReceiver] = [];
     }
     const filenames: Array<string> = [];
-    originalMail.attachments.forEach((attachment: any) => {
-      filenames.push(attachment.fileName);
-    });
+    if (originalMail.attachments !== undefined) {
+      originalMail.attachments.forEach((attachment: any) => {
+        filenames.push(attachment.fileName);
+      });
+    } else {
+      console.warn('No attachments found in mail');
+      filenames.push(originalMail.from[0].name + ' <!!! no attachment found>');
+    }
     delete originalMail.attachments;
     originalMail.attachments = filenames;
     this.log_content[fwdReceiver].push(originalMail);

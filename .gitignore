@@ -131,7 +131,7 @@ dist
 
 config.json
 statistic.json
-statistic.xlsx
+*.xlsx
 
 .idea/
 .vscode/
